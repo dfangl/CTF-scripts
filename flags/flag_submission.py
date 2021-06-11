@@ -45,7 +45,7 @@ def login() -> str:
     username, password = credentials
     credential_body = { 'username': username, 'password': password }
     try:
-        r = requests.post(f'{URL}/api/auth/login', json=credential_body, verify=False)
+        r = requests.post(f'{URL}/api/auth/login', json=credential_body, verify=False) # TLS certification verification off due to invalid certificate of the game server
     except RequestException as e:
         logger.exception('Error while requesting Bearer token')
     token = r.json()['token']

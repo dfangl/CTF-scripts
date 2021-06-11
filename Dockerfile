@@ -12,4 +12,4 @@ RUN pip3 install requests
 
 WORKDIR /home/root
 
-CMD node exploit-runner/exploit-runner.js | python3 flag-parser/flag-parser.py | python3 flag-submitter/flag-submit.py
+CMD node exploit-runner/exploit-runner.js | python3 flags/flag_parser.py | python3 flags/flag_submission.py
