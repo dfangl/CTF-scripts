@@ -6,7 +6,7 @@ WORKDIR /home/root
 
 COPY . .
 
-WORKDIR /home/root/flag-submitter
+WORKDIR /home/root/flags
 
 RUN pip3 install requests
 

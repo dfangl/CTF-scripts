@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 login_lock = threading.Lock()
 urllib3.disable_warnings()
 
-SERVER = 'localhost'
+SERVER = '10.10.40.200'
 PORT = 8443
 URL = f'https://{SERVER}:{PORT}'
 MAX_RETRY = 5

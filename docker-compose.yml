@@ -1,0 +1,10 @@
+version: "3.9"
+services: 
+    exploit_runner:
+        build:
+            context: .
+            dockerfile: Dockerfile_python
+        volumes:
+            - ./exploits:/app/exploits
+#        extra_hosts:
+#            - "host.docker.internal:host-gateway"

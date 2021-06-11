@@ -1,0 +1,9 @@
+FROM nikolaik/python-nodejs:python3.9-nodejs16
+
+RUN pip3 install requests
+
+WORKDIR /app
+VOLUME ["/app/exploits"]
+COPY . .
+
+CMD ["python3", "exploit_runner.py"]
