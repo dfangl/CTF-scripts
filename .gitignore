@@ -2,5 +2,6 @@
 .idea/
 venv/
 target/
+__pycache__/
 
 *.iml
