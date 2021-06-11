@@ -6,7 +6,7 @@ import re
 FLAG_REGEX = re.compile(r'\d{14}UTC[A-Z0-9]{15}')
 
 def parse_string(input: str) -> List[str]:
-    return re.findall(FLAG_REGEX, input)
+    return list(set(re.findall(FLAG_REGEX, input)))
 
 if __name__ == "__main__":
     input = sys.stdin.read()

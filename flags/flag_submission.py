@@ -7,18 +7,20 @@ import logging
 import os
 import time
 import stat
+import threading
 from collections import Counter
 from pathlib import Path
 from http import HTTPStatus
 from requests.exceptions import RequestException
 
 logger = logging.getLogger(__name__)
+login_lock = threading.Lock()
 
 SERVER = 'localhost'
 PORT = 8443
 URL = f'https://{SERVER}:{PORT}'
 MAX_RETRY = 5
-BEARER_TOKEN_PATH = 'bearer_token'
+BEARER_TOKEN_PATH = 'bearer_token' # usage of file as token buffer due to the initial design as pipe end
 CREDENTIAL_PATH = 'credentials'
 
 def login() -> str:
@@ -26,6 +28,7 @@ def login() -> str:
     Token is saved in BEARER_TOKEN_PATH.
     
     """ 
+    logger.debug('Trying to login...')
     credentials_path = Path(CREDENTIAL_PATH)
     if not credentials_path.is_file():
         logger.error(f'Credential file missing! Should be present at {credentials_path.absolute}')
@@ -61,18 +64,23 @@ def retrieve_token() -> str:
     """Retrieves token from BEARER_TOKEN_PATH"""
     bearer_file_path = Path(BEARER_TOKEN_PATH)
     if not bearer_file_path.is_file():
-        return login()
+        with login_lock:
+            if not bearer_file_path.is_file():
+                return login()
     with bearer_file_path.open('r') as f:
         token = f.read().strip()
     return token
 
-def submit_flags(flags: List[str], bearer_token: str) -> None:
+def submit_flags(flags: List[str], bearer_token: str = None) -> None:
     """Submit the flags to {URL}/api/flags.
 
     Parameters:
         - flags: List of flags to submit
-        - bearer_token: Token for authentication
+        - bearer_token <Optional>: Token for authentication, if missing it will be requested
     """
+    if bearer_token == None:
+        bearer_token = retrieve_token()
+
     flag_submission = {'data': flags}
     headers = {'Authorization': f'Bearer {bearer_token}'}
 
@@ -85,7 +93,10 @@ def submit_flags(flags: List[str], bearer_token: str) -> None:
             time.sleep(i)    
     if request.status_code in [HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN]:
         logger.warn('Invalid bearer token! Trying to login again...')
-        submit_flags(flags, login())
+        with login_lock:
+            current_token = retrieve_token()
+            new_token = login() if bearer_token == current_token else current_token
+        submit_flags(flags, new_token)
         return
     if not request.ok:
         logger.error('Request not ok, aborting...')
@@ -103,5 +114,4 @@ if __name__ == '__main__':
 
     urllib3.disable_warnings()
     flags = [line.strip() for line in sys.stdin.readlines()]
-    bearer_token = retrieve_token()
-    submit_flags(flags, bearer_token)
+    submit_flags(flags)
