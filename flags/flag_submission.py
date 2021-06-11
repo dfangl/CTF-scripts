@@ -15,6 +15,7 @@ from requests.exceptions import RequestException
 
 logger = logging.getLogger(__name__)
 login_lock = threading.Lock()
+urllib3.disable_warnings()
 
 SERVER = 'localhost'
 PORT = 8443
@@ -104,7 +105,7 @@ def submit_flags(flags: List[str], bearer_token: str = None) -> None:
 
     flag_information = request.json()
     flag_counts = Counter(map(lambda x: x['result'], flag_information['data']))
-    print(f'Flag\'s status: {flag_counts.most_common()}')
+    logger.info(f'Flag\'s status: {flag_counts.most_common()}')
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -112,6 +113,5 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         datefmt='%Y-%m-%d %H:%M:%S')
 
-    urllib3.disable_warnings()
     flags = [line.strip() for line in sys.stdin.readlines()]
     submit_flags(flags)
