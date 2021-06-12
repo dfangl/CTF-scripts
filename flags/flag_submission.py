@@ -18,7 +18,7 @@ login_lock = threading.Lock()
 urllib3.disable_warnings()
 
 SERVER = '10.10.40.200'
-PORT = 8443
+PORT = 443
 URL = f'https://{SERVER}:{PORT}'
 MAX_RETRY = 5
 BEARER_TOKEN_PATH = 'bearer_token' # usage of file as token buffer due to the initial design as pipe end
